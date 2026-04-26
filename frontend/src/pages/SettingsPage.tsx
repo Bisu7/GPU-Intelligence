@@ -1,8 +1,11 @@
-import { useState } from 'react';
-import { Save, Shield, Bell, Globe, Key, Mail, MessageSquare } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Save, Shield, Bell, Globe, Key, Mail, MessageSquare, Loader2 } from 'lucide-react';
+import { enterpriseApi } from '../api/enterprise';
 
 const SettingsPage = () => {
   const [activeTab, setActiveTab] = useState('general');
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [settings, setSettings] = useState({
     site_name: 'GPU Intelligence',
     maintenance_mode: false,
@@ -12,6 +15,32 @@ const SettingsPage = () => {
     max_keys_per_user: 5
   });
 
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const data = await enterpriseApi.getSettings();
+        setSettings(data);
+      } catch (error) {
+        console.error('Error fetching settings:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchSettings();
+  }, []);
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await enterpriseApi.updateSettings(settings);
+      alert('Settings saved successfully!');
+    } catch (error) {
+      console.error('Error saving settings:', error);
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const tabs = [
     { id: 'general', label: 'General', icon: <Globe size={18} /> },
     { id: 'security', label: 'Security', icon: <Shield size={18} /> },
@@ -19,11 +48,14 @@ const SettingsPage = () => {
     { id: 'integrations', label: 'Integrations', icon: <Key size={18} /> },
   ];
 
-  const handleSave = () => {
-    // API call to update settings
-    console.log('Saving settings:', settings);
-    alert('Settings saved successfully!');
-  };
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-48 text-gray-500">
+        <Loader2 className="animate-spin mb-4" size={48} />
+        <p>Loading settings...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -34,10 +66,11 @@ const SettingsPage = () => {
         </div>
         <button 
           onClick={handleSave}
-          className="flex items-center gap-2 bg-[#76b900] hover:bg-[#86d200] text-black px-6 py-2.5 rounded-xl font-bold transition-all shadow-lg shadow-[#76b900]/20"
+          disabled={saving}
+          className="flex items-center gap-2 bg-[#76b900] hover:bg-[#86d200] text-black px-6 py-2.5 rounded-xl font-bold transition-all shadow-lg shadow-[#76b900]/20 disabled:opacity-50"
         >
-          <Save size={18} />
-          Save Changes
+          {saving ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />}
+          {saving ? 'Saving...' : 'Save Changes'}
         </button>
       </div>
 

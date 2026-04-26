@@ -1,13 +1,24 @@
-import { Search, Download, Clock, User } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Search, Download, Clock, User, Loader2 } from 'lucide-react';
+import { enterpriseApi } from '../api/enterprise';
 
 const AuditLogsPage = () => {
-  const logs = [
-    { id: 1, action: 'login', user: 'biswa@example.com', details: 'Successful login from 192.168.1.1', timestamp: '2026-04-26 15:10:22' },
-    { id: 2, action: 'config_change', user: 'admin@gpuintel.ai', details: 'Updated rate limiting threshold to 500', timestamp: '2026-04-26 14:45:10' },
-    { id: 3, action: 'role_change', user: 'admin@gpuintel.ai', details: 'Changed Sarah Chen role to Team Lead', timestamp: '2026-04-26 12:30:05' },
-    { id: 4, action: 'scheduler_action', user: 'system', details: 'Auto-scaled Cluster-East (+2 nodes)', timestamp: '2026-04-26 10:15:44' },
-    { id: 5, action: 'apikey_create', user: 'james@dev.ai', details: 'Created new API key: CI-CD-Inference', timestamp: '2026-04-26 09:00:12' },
-  ];
+  const [logs, setLogs] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchLogs = async () => {
+      try {
+        const data = await enterpriseApi.getAuditLogs();
+        setLogs(data);
+      } catch (error) {
+        console.error('Error fetching audit logs:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchLogs();
+  }, []);
 
   const getActionStyle = (action: string) => {
     switch(action) {
@@ -55,30 +66,45 @@ const AuditLogsPage = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#1e1e22]">
-              {logs.map((log) => (
-                <tr key={log.id} className="hover:bg-white/[0.02] transition-colors group">
-                  <td className="px-6 py-4">
-                    <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${getActionStyle(log.action)}`}>
-                      {log.action.replace('_', ' ')}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2">
-                      <User size={14} className="text-gray-500" />
-                      {log.user}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-gray-300">
-                    {log.details}
-                  </td>
-                  <td className="px-6 py-4 text-gray-500 whitespace-nowrap">
-                    <div className="flex items-center gap-2">
-                      <Clock size={14} />
-                      {log.timestamp}
-                    </div>
+              {loading ? (
+                <tr>
+                  <td colSpan={4} className="px-6 py-24 text-center text-gray-500">
+                    <Loader2 className="animate-spin mx-auto mb-4" size={32} />
+                    Loading audit logs...
                   </td>
                 </tr>
-              ))}
+              ) : logs.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="px-6 py-24 text-center text-gray-500">
+                    No logs found.
+                  </td>
+                </tr>
+              ) : (
+                logs.map((log) => (
+                  <tr key={log.id} className="hover:bg-white/[0.02] transition-colors group">
+                    <td className="px-6 py-4">
+                      <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${getActionStyle(log.action)}`}>
+                        {log.action.replace('_', ' ')}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-2">
+                        <User size={14} className="text-gray-500" />
+                        {log.user_id || 'system'}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-gray-300">
+                      {log.details}
+                    </td>
+                    <td className="px-6 py-4 text-gray-500 whitespace-nowrap">
+                      <div className="flex items-center gap-2">
+                        <Clock size={14} />
+                        {new Date(log.timestamp).toLocaleString()}
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

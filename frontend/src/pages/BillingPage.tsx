@@ -1,12 +1,30 @@
-import React from 'react';
-import { CreditCard, TrendingUp, Download, PieChart, Clock, Zap } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { CreditCard, TrendingUp, Download, PieChart, Clock, Zap, Loader2 } from 'lucide-react';
+import { enterpriseApi } from '../api/enterprise';
 
 const BillingPage = () => {
-  const usageData = [
-    { project: 'LLM Fine-tuning', hours: 450, cost: 225.00 },
-    { project: 'Inference Production', hours: 820, cost: 410.00 },
-    { project: 'Testing & Staging', hours: 120, cost: 60.00 },
-  ];
+  const [usageData, setUsageData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [summary, setSummary] = useState<any>({ total_cost: 0, total_hours: 0, next_bill_estimate: 0 });
+
+  useEffect(() => {
+    const fetchBilling = async () => {
+      try {
+        const data = await enterpriseApi.getBillingUsage();
+        setUsageData(data.projects);
+        setSummary({
+          total_cost: data.total_cost,
+          total_hours: data.total_hours,
+          next_bill_estimate: data.total_cost * 1.2 // Mocking pace estimation
+        });
+      } catch (error) {
+        console.error('Error fetching billing data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchBilling();
+  }, []);
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -28,9 +46,9 @@ const BillingPage = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <StatCard label="Current Month Cost" value="$695.00" icon={<TrendingUp size={20} />} trend="+12% from last month" color="#76b900" />
-        <StatCard label="Compute Hours" value="1,390h" icon={<Clock size={20} />} trend="82% utilization" color="#3b82f6" />
-        <StatCard label="Estimated Next Bill" value="$842.20" icon={<Zap size={20} />} trend="Based on current pace" color="#f59e0b" />
+        <StatCard label="Current Month Cost" value={`$${summary.total_cost.toFixed(2)}`} icon={<TrendingUp size={20} />} trend="+12% from last month" color="#76b900" />
+        <StatCard label="Compute Hours" value={`${summary.total_hours}h`} icon={<Clock size={20} />} trend="82% utilization" color="#3b82f6" />
+        <StatCard label="Estimated Next Bill" value={`$${summary.next_bill_estimate.toFixed(2)}`} icon={<Zap size={20} />} trend="Based on current pace" color="#f59e0b" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -42,21 +60,30 @@ const BillingPage = () => {
             </h3>
           </div>
           <div className="space-y-6">
-            {usageData.map((item, idx) => (
-              <div key={idx} className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="font-medium text-gray-300">{item.project}</span>
-                  <span className="font-bold">${item.cost.toFixed(2)}</span>
-                </div>
-                <div className="h-2 bg-white/5 rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-[#76b900] rounded-full transition-all duration-1000" 
-                    style={{ width: `${(item.cost / 695) * 100}%` }} 
-                  />
-                </div>
-                <div className="text-[10px] text-gray-500 uppercase tracking-widest">{item.hours} hours consumed</div>
+            {loading ? (
+              <div className="flex flex-col items-center justify-center py-12 text-gray-500">
+                <Loader2 className="animate-spin mb-4" size={32} />
+                <p>Loading usage data...</p>
               </div>
-            ))}
+            ) : usageData.length === 0 ? (
+              <div className="text-center py-12 text-gray-500">No usage recorded yet.</div>
+            ) : (
+              usageData.map((item, idx) => (
+                <div key={idx} className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="font-medium text-gray-300">{item.project}</span>
+                    <span className="font-bold">${item.cost.toFixed(2)}</span>
+                  </div>
+                  <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-[#76b900] rounded-full transition-all duration-1000" 
+                      style={{ width: `${(item.cost / (summary.total_cost || 1)) * 100}%` }} 
+                    />
+                  </div>
+                  <div className="text-[10px] text-gray-500 uppercase tracking-widest">{item.hours} hours consumed</div>
+                </div>
+              ))
+            )}
           </div>
         </div>
 
