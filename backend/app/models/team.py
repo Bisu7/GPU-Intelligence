@@ -17,3 +17,5 @@ class TeamCreate(TeamBase):
 
 class TeamRead(TeamBase):
     id: int
+    member_count: Optional[int] = 0
+    gpu_count: Optional[int] = 0

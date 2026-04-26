@@ -14,5 +14,18 @@ def read_audit_logs(
     limit: int = 100,
     current_user: User = Depends(deps.check_role([UserRole.SUPER_ADMIN])),
 ):
-    logs = db.exec(select(AuditLog).order_by(desc(AuditLog.timestamp)).offset(skip).limit(limit)).all()
+    results = db.exec(
+        select(AuditLog, User.email)
+        .outerjoin(User, AuditLog.user_id == User.id)
+        .order_by(desc(AuditLog.timestamp))
+        .offset(skip)
+        .limit(limit)
+    ).all()
+    
+    logs = []
+    for log, email in results:
+        log_read = AuditLogRead.from_orm(log)
+        log_read.user_email = email
+        logs.append(log_read)
+        
     return logs

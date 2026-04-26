@@ -90,7 +90,7 @@ const AuditLogsPage = () => {
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
                         <User size={14} className="text-gray-500" />
-                        {log.user_id || 'system'}
+                        {log.user_email || 'system'}
                       </div>
                     </td>
                     <td className="px-6 py-4 text-gray-300">

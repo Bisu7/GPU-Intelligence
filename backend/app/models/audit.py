@@ -14,3 +14,4 @@ class AuditLog(AuditLogBase, table=True):
 
 class AuditLogRead(AuditLogBase):
     id: int
+    user_email: Optional[str] = None

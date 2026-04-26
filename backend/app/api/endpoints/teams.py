@@ -45,4 +45,10 @@ def read_teams(
     current_user: User = Depends(deps.get_current_active_user),
 ):
     teams = db.exec(select(Team).offset(skip).limit(limit)).all()
+    
+    # Enrich teams with counts
+    for team in teams:
+        team.member_count = len(team.users)
+        team.gpu_count = len(team.gpus)
+        
     return teams
