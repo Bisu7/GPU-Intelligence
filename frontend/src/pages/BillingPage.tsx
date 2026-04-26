@@ -85,10 +85,10 @@ const BillingPage = () => {
   );
 };
 
-const StatCard = ({ label, value, icon, trend, color }) => (
+const StatCard = ({ label, value, icon, trend, color }: { label: string, value: string, icon: React.ReactElement, trend: string, color: string }) => (
   <div className="bg-[#0d0d0f] border border-[#1e1e22] rounded-2xl p-6 relative overflow-hidden group">
     <div className="absolute top-0 right-0 p-4 text-gray-800 opacity-10 group-hover:opacity-20 transition-all">
-      {React.cloneElement(icon, { size: 64 })}
+      {React.cloneElement(icon as React.ReactElement<any>, { size: 64 })}
     </div>
     <div className="flex items-center gap-3 text-gray-500 mb-4">
       <div className="p-2 bg-white/5 rounded-lg" style={{ color }}>

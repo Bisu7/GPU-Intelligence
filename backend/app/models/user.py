@@ -1,6 +1,8 @@
 from enum import Enum
 from datetime import datetime
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
+if TYPE_CHECKING:
+    from .team import Team
 from sqlmodel import SQLModel, Field, Relationship
 
 class UserRole(str, Enum):
@@ -21,6 +23,7 @@ class User(UserBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     hashed_password: str
     created_at: datetime = Field(default_factory=datetime.utcnow)
+    team: Optional["Team"] = Relationship(back_populates="users")
 
 class UserCreate(UserBase):
     password: str

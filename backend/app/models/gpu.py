@@ -1,4 +1,8 @@
-from typing import Optional, List
+from typing import Optional, List, TYPE_CHECKING
+if TYPE_CHECKING:
+    from .cluster import Cluster
+    from .team import Team
+    from .metric import GPUMetric
 from sqlmodel import SQLModel, Field, Relationship
 
 class GPUNodeBase(SQLModel):

@@ -12,10 +12,10 @@ router = APIRouter()
 @router.post("/create")
 def create_apikey(
     *,
+    request: Request,
     db: Session = Depends(deps.get_db),
     apikey_in: APIKeyCreate,
-    current_user: User = Depends(deps.get_current_active_user),
-    request: Request
+    current_user: User = Depends(deps.get_current_active_user)
 ):
     raw_key, prefix, key_hash = security.generate_api_key()
     
@@ -55,10 +55,11 @@ def read_apikeys(
 
 @router.delete("/{key_id}")
 def delete_apikey(
+    *,
     key_id: int,
+    request: Request,
     db: Session = Depends(deps.get_db),
-    current_user: User = Depends(deps.get_current_active_user),
-    request: Request
+    current_user: User = Depends(deps.get_current_active_user)
 ):
     key = db.get(APIKey, key_id)
     if not key or key.user_id != current_user.id:

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Save, Shield, Bell, Globe, Key, Database, Mail, Slack } from 'lucide-react';
+import { useState } from 'react';
+import { Save, Shield, Bell, Globe, Key, Mail, MessageSquare } from 'lucide-react';
 
 const SettingsPage = () => {
   const [activeTab, setActiveTab] = useState('general');
@@ -122,7 +122,7 @@ const SettingsPage = () => {
               <div className="space-y-4">
                 <div className="flex items-center justify-between p-4 bg-white/5 rounded-xl border border-white/5">
                   <div className="flex items-center gap-3">
-                    <Slack className="text-[#4A154B]" />
+                    <MessageSquare className="text-purple-500" />
                     <div>
                       <div className="font-medium">Slack Notifications</div>
                       <div className="text-xs text-gray-500">Send critical alerts to configured Slack channels.</div>
@@ -166,7 +166,7 @@ const SettingsPage = () => {
   );
 };
 
-const Toggle = ({ enabled, onChange }: { enabled: bool, onChange: (val: bool) => void }) => (
+const Toggle = ({ enabled, onChange }: { enabled: boolean, onChange: (val: boolean) => void }) => (
   <button 
     onClick={() => onChange(!enabled)}
     className={`w-12 h-6 rounded-full transition-all duration-300 relative ${

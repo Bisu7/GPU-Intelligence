@@ -11,10 +11,10 @@ router = APIRouter()
 @router.post("/create", response_model=TeamRead)
 def create_team(
     *,
+    request: Request,
     db: Session = Depends(deps.get_db),
     team_in: TeamCreate,
-    current_user: User = Depends(deps.check_role([UserRole.SUPER_ADMIN, UserRole.INFRA_MANAGER])),
-    request: Request
+    current_user: User = Depends(deps.check_role([UserRole.SUPER_ADMIN, UserRole.INFRA_MANAGER]))
 ):
     team = db.exec(select(Team).where(Team.name == team_in.name)).first()
     if team:

@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { Users, UserPlus, Shield, MoreVertical, Search, Filter } from 'lucide-react';
+import { useState } from 'react';
+import { Users, UserPlus, MoreVertical, Search, Filter } from 'lucide-react';
 
 const TeamsPage = () => {
-  const [teams, setTeams] = useState([
+  const [teams] = useState([
     { id: 1, name: 'Deep Learning R&D', members: 12, gpus: 48, owner: 'Dr. Sarah Chen' },
     { id: 2, name: 'Infra Platform', members: 5, gpus: 8, owner: 'Alex Rivera' },
     { id: 3, name: 'Product ML', members: 8, gpus: 16, owner: 'James Wilson' },

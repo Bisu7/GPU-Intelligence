@@ -1,5 +1,4 @@
-import React from 'react';
-import { ClipboardList, Search, Download, Clock, User, Activity } from 'lucide-react';
+import { Search, Download, Clock, User } from 'lucide-react';
 
 const AuditLogsPage = () => {
   const logs = [
@@ -10,7 +9,7 @@ const AuditLogsPage = () => {
     { id: 5, action: 'apikey_create', user: 'james@dev.ai', details: 'Created new API key: CI-CD-Inference', timestamp: '2026-04-26 09:00:12' },
   ];
 
-  const getActionStyle = (action) => {
+  const getActionStyle = (action: string) => {
     switch(action) {
       case 'login': return 'text-blue-400 bg-blue-400/10 border-blue-400/20';
       case 'config_change': return 'text-orange-400 bg-orange-400/10 border-orange-400/20';

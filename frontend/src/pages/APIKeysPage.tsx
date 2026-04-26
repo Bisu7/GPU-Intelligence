@@ -1,15 +1,15 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Key, Plus, Trash2, Copy, Check, ShieldCheck, Clock } from 'lucide-react';
 
 const APIKeysPage = () => {
-  const [keys, setKeys] = useState([
+  const [keys] = useState([
     { id: 1, name: 'Production Inference', prefix: 'gk_abc123', created: '2026-04-20', lastUsed: '2 minutes ago' },
     { id: 2, name: 'CI-CD-Bot', prefix: 'gk_xyz789', created: '2026-04-15', lastUsed: '1 hour ago' },
   ]);
   const [showNewKeyModal, setShowNewKeyModal] = useState(false);
-  const [copiedId, setCopiedId] = useState(null);
+  const [copiedId, setCopiedId] = useState<number | null>(null);
 
-  const handleCopy = (id) => {
+  const handleCopy = (id: number) => {
     setCopiedId(id);
     setTimeout(() => setCopiedId(null), 2000);
   };
