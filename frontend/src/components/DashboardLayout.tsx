@@ -8,7 +8,11 @@ import {
   Cpu, 
   Bell, 
   Search,
-  Brain
+  Brain,
+  Users,
+  Key,
+  CreditCard,
+  ClipboardList
 } from 'lucide-react';
 import { useAuthStore } from '../store/useAuthStore';
 import { cn } from '../lib/utils';
@@ -38,8 +42,12 @@ const DashboardLayout = () => {
         <nav className="flex-1 px-3 space-y-1">
           <SidebarItem to="/dashboard" icon={<LayoutDashboard size={18} />} label="Dashboard" />
           <SidebarItem to="/fleet" icon={<Server size={18} />} label="GPU Fleet" />
+          <SidebarItem to="/teams" icon={<Users size={18} />} label="Teams" />
           <SidebarItem to="/ai-insights" icon={<Brain size={18} />} label="AI Insights" />
           <SidebarItem to="/alerts" icon={<Bell size={18} />} label="Alert Center" />
+          <SidebarItem to="/audit" icon={<ClipboardList size={18} />} label="Audit Logs" />
+          <SidebarItem to="/api-keys" icon={<Key size={18} />} label="API Keys" />
+          <SidebarItem to="/billing" icon={<CreditCard size={18} />} label="Billing" />
           <SidebarItem to="/settings" icon={<Settings size={18} />} label="Settings" />
         </nav>
 

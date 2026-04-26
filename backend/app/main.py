@@ -8,6 +8,9 @@ from app.models import User, GPUNode, GPUMetric, Alert
 from app.core.config import settings
 from app.api.deps import engine
 from app.services.metrics_worker import metrics_broadcast_worker
+from fastapi import Request, HTTPException
+import time
+from collections import defaultdict
 
 import bcrypt
 # Monkeypatch bcrypt for passlib compatibility
@@ -36,6 +39,36 @@ app = FastAPI(
     title=settings.PROJECT_NAME,
     openapi_url="/api/v1/openapi.json"
 )
+
+# Rate Limiting
+rate_limit_storage = defaultdict(list)
+RATE_LIMIT_CALLS = 100
+RATE_LIMIT_WINDOW = 60 # seconds
+
+@app.middleware("http")
+async def rate_limit_middleware(request: Request, call_next):
+    client_ip = request.client.host
+    now = time.time()
+    
+    # Filter out old requests
+    rate_limit_storage[client_ip] = [t for t in rate_limit_storage[client_ip] if now - t < RATE_LIMIT_WINDOW]
+    
+    if len(rate_limit_storage[client_ip]) >= RATE_LIMIT_CALLS:
+        raise HTTPException(status_code=429, detail="Too many requests")
+    
+    rate_limit_storage[client_ip].append(now)
+    response = await call_next(request)
+    return response
+
+# Security Headers
+@app.middleware("http")
+async def security_headers_middleware(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    return response
 
 # Set all CORS enabled origins
 app.add_middleware(

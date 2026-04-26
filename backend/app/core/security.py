@@ -1,5 +1,7 @@
+import secrets
+import hashlib
 from datetime import datetime, timedelta
-from typing import Any, Union
+from typing import Any, Union, Tuple
 from jose import jwt
 from passlib.context import CryptContext
 from app.core.config import settings
@@ -20,3 +22,16 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
+
+def generate_api_key() -> Tuple[str, str, str]:
+    """
+    Generates a new API key.
+    Returns: (raw_key, prefix, key_hash)
+    """
+    raw_key = f"gk_{secrets.token_urlsafe(32)}"
+    prefix = raw_key[:8]
+    key_hash = hashlib.sha256(raw_key.encode()).hexdigest()
+    return raw_key, prefix, key_hash
+
+def verify_api_key(raw_key: str, hashed_key: str) -> bool:
+    return hashlib.sha256(raw_key.encode()).hexdigest() == hashed_key

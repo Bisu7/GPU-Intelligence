@@ -4,6 +4,9 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
 from app.api import deps
 from app.models.alert import Alert
+from app.services.notification_service import notification_service
+from app.services.audit_service import audit_service
+from fastapi import Request
 
 router = APIRouter()
 
@@ -35,4 +38,15 @@ def resolve_alert(
     alert.resolved_at = datetime.utcnow()
     db.add(alert)
     db.commit()
+    
+    notification_service.send_slack_alert(f"Alert {alert_id} resolved by {current_user.email}")
+    
     return {"status": "success"}
+
+@router.post("/test-notification")
+def test_notification(
+    current_user: Any = Depends(deps.get_current_active_admin),
+):
+    notification_service.send_slack_alert(f"Test alert from {current_user.email}")
+    notification_service.send_email_alert("GPU Platform Test", "This is a test notification", current_user.email)
+    return {"status": "notifications sent"}
