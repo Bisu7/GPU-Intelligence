@@ -1,6 +1,6 @@
 FROM node:20-slim AS builder
 
-WORKDIR /app/main
+WORKDIR /app
 
 COPY package*.json ./
 RUN npm install
